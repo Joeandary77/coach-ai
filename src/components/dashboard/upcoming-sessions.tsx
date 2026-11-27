@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -32,7 +31,7 @@ export function UpcomingSessions() {
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="rounded-2xl border bg-card p-5 shadow-sm md:p-6"

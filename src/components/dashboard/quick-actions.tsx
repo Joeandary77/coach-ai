@@ -1,9 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { motion } from "motion/react";
 import {
+  Trophy,
   CalendarDays,
   Dumbbell,
   Timer,
@@ -15,10 +15,15 @@ import {
 import { quickActions } from "@/data/dashboard";
 
 const actionStyles = {
-  "/fitness-program": {
-    icon: CalendarDays,
+  "/basketball-program": {
+    icon: Trophy,
     color: "text-orange-600 dark:text-orange-400",
     background: "bg-orange-500/10",
+  },
+  "/fitness-program": {
+    icon: CalendarDays,
+    color: "text-emerald-600 dark:text-emerald-400",
+    background: "bg-emerald-500/10",
   },
   "/exercise-library": {
     icon: Dumbbell,
@@ -27,8 +32,8 @@ const actionStyles = {
   },
   "/live-session": {
     icon: Timer,
-    color: "text-emerald-600 dark:text-emerald-400",
-    background: "bg-emerald-500/10",
+    color: "text-violet-600 dark:text-violet-400",
+    background: "bg-violet-500/10",
   },
   "/reports": {
     icon: ClipboardList,
@@ -74,7 +79,7 @@ export function QuickActions() {
           return (
             <motion.div
               key={action.href}
-              initial={{ opacity: 0, y: 10 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration: 0.35,

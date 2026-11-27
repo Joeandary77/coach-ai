@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -67,7 +66,7 @@ export function CategoryCard({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.35,
@@ -145,11 +144,9 @@ export function CategoryCard({
           aria-valuemax={100}
           className="h-2 overflow-hidden rounded-full bg-muted"
         >
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.6 }}
-            className={`h-full rounded-full ${styles.progress}`}
+          <div
+            style={{ width: `${progress}%` }}
+            className={`h-full rounded-full transition-all duration-500 ${styles.progress}`}
           />
         </div>
       </div>

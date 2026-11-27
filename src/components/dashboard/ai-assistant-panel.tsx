@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -34,7 +33,7 @@ const initialMessages: ChatMessage[] = [
     id: "welcome",
     role: "assistant",
     content:
-      "Welcome, Coach! I'm your AI coaching assistant. Once connected, I can help you plan fitness sessions, explore exercises and adapt activities for your age groups.",
+      "Welcome, Coach! I'm your AI coaching assistant. Once connected, I can help you plan basketball and fitness sessions, explore drills and exercises, and adapt activities for your age groups.",
   },
 ];
 
@@ -97,7 +96,7 @@ export function AIAssistantPanel({
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className={cn(
@@ -162,11 +161,8 @@ export function AIAssistantPanel({
             message.role === "assistant";
 
           return (
-            <motion.div
+            <div
               key={message.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
               className={cn(
                 "flex items-start gap-2",
                 !isAssistant && "flex-row-reverse"
@@ -199,7 +195,7 @@ export function AIAssistantPanel({
               >
                 {message.content}
               </div>
-            </motion.div>
+            </div>
           );
         })}
 

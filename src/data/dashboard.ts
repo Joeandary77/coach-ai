@@ -1,4 +1,3 @@
-
 import type {
   CategoryInfo,
   ProgramWeek,
@@ -14,6 +13,16 @@ export const programConfig = {
     "Basketballs",
     "Skipping ropes",
   ],
+};
+
+export const basketballDashboardStats = {
+  monthTitle: "Month 1: Foundations",
+  totalGroups: 5,
+  totalSessions: 36,
+  completedSessions: 0,
+  sessionDuration: 60,
+  totalWeeks: 4,
+  trainingDays: ["Wednesday", "Thursday", "Saturday"],
 };
 
 export const categories: CategoryInfo[] = [
@@ -109,30 +118,30 @@ export const programStats: ProgramStats = {
 
 export const quickActions = [
   {
-    title: "View Fitness Program",
-    description: "Explore the four-week training plan.",
+    title: "Basketball Program",
+    description: "Explore 36 court sessions & Month 1 skill checklists.",
+    href: "/basketball-program",
+  },
+  {
+    title: "Fitness Program",
+    description: "Explore the 16 Saturday post-practice fitness sessions.",
     href: "/fitness-program",
   },
   {
-    title: "Exercise Library",
-    description: "Browse available fitness exercises.",
+    title: "Drill & Exercise Library",
+    description: "Browse basketball drills and fitness exercises.",
     href: "/exercise-library",
   },
   {
     title: "Start Live Session",
-    description: "Open the session coaching workspace.",
+    description: "Open the court-side coaching timer workspace.",
     href: "/live-session",
-  },
-  {
-    title: "Session Reports",
-    description: "Review training observations.",
-    href: "/reports",
   },
 ];
 
 export const suggestedPrompts = [
-  "Suggest a coordination exercise for U8.",
-  "Help me plan a U12 fitness session.",
-  "How can I adapt a session for tired players?",
-  "Suggest a balance and mobility activity.",
+  "Suggest a U10 ball-handling and passing session.",
+  "Explain the 4-Out Motion Offense drill for U12 (A).",
+  "Adapt a Saturday fitness session for tired players.",
+  "Help me organize a combined 90-minute U12 practice.",
 ];

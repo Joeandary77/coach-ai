@@ -1,45 +1,47 @@
-
 "use client";
 
 import { motion } from "motion/react";
 import {
-  Users,
+  Trophy,
   CalendarDays,
-  Timer,
+  Users,
   CalendarRange,
 } from "lucide-react";
 
-import { programStats } from "@/data/dashboard";
+import {
+  basketballDashboardStats,
+  programStats,
+} from "@/data/dashboard";
 
 const statistics = [
   {
-    title: "Age Categories",
-    value: programStats.totalCategories,
-    description: "U8, U10, U12 and U14",
-    icon: Users,
+    title: "Basketball Sessions",
+    value: basketballDashboardStats.totalSessions,
+    description: "60 min court practices (Wed, Thu, Sat)",
+    icon: Trophy,
     color: "text-orange-600 dark:text-orange-400",
     background: "bg-orange-500/10",
   },
   {
-    title: "Planned Sessions",
+    title: "Fitness Sessions",
     value: programStats.totalSessions,
-    description: "Across all categories",
+    description: "30 min post-practice every Saturday",
     icon: CalendarDays,
-    color: "text-blue-600 dark:text-blue-400",
-    background: "bg-blue-500/10",
-  },
-  {
-    title: "Session Duration",
-    value: `${programStats.sessionDuration} min`,
-    description: "After basketball training",
-    icon: Timer,
     color: "text-emerald-600 dark:text-emerald-400",
     background: "bg-emerald-500/10",
   },
   {
-    title: "Program Weeks",
-    value: programStats.totalWeeks,
-    description: "Every Saturday",
+    title: "Training Groups",
+    value: basketballDashboardStats.totalGroups,
+    description: "U8, U10, U12 (B), U12 (A) & U14-16",
+    icon: Users,
+    color: "text-blue-600 dark:text-blue-400",
+    background: "bg-blue-500/10",
+  },
+  {
+    title: "Month 1 Curriculum",
+    value: `${programStats.totalWeeks} Weeks`,
+    description: "52 total basketball & fitness sessions",
     icon: CalendarRange,
     color: "text-violet-600 dark:text-violet-400",
     background: "bg-violet-500/10",
@@ -58,7 +60,7 @@ export function StatsOverview() {
         return (
           <motion.div
             key={stat.title}
-            initial={{ opacity: 0, y: 12 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               duration: 0.35,

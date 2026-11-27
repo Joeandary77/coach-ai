@@ -1,10 +1,12 @@
-
 import {
   LayoutDashboard,
+  Trophy,
   CalendarDays,
   Dumbbell,
   Timer,
   Sparkles,
+  Wand2,
+  Calendar,
   ClipboardList,
   Settings,
 } from "lucide-react";
@@ -17,14 +19,20 @@ export const navigationItems = [
     icon: LayoutDashboard,
   },
   {
+    title: "Basketball Program",
+    shortTitle: "Basketball",
+    href: "/basketball-program",
+    icon: Trophy,
+  },
+  {
     title: "Fitness Program",
-    shortTitle: "Program",
+    shortTitle: "Fitness",
     href: "/fitness-program",
     icon: CalendarDays,
   },
   {
-    title: "Exercise Library",
-    shortTitle: "Exercises",
+    title: "Drill & Exercise Library",
+    shortTitle: "Library",
     href: "/exercise-library",
     icon: Dumbbell,
   },
@@ -41,6 +49,18 @@ export const navigationItems = [
     icon: Sparkles,
   },
   {
+    title: "Session Generator",
+    shortTitle: "Generator",
+    href: "/session-generator",
+    icon: Wand2,
+  },
+  {
+    title: "Training Calendar",
+    shortTitle: "Calendar",
+    href: "/calendar",
+    icon: Calendar,
+  },
+  {
     title: "Session Reports",
     shortTitle: "Reports",
     href: "/reports",
@@ -54,16 +74,17 @@ export const navigationItems = [
   },
 ];
 
-export const mobileNavigationItems = navigationItems.filter(
-  (item) =>
-    ["/", "/fitness-program", "/live-session", "/ai-coach"].includes(
-      item.href
-    )
+export const mobileNavigationItems = navigationItems.filter((item) =>
+  ["/", "/basketball-program", "/live-session", "/ai-coach"].includes(item.href)
 );
 
-export const mobileMoreItems = navigationItems.filter(
-  (item) =>
-    ["/exercise-library", "/reports", "/settings"].includes(
-      item.href
-    )
+export const mobileMoreItems = navigationItems.filter((item) =>
+  [
+    "/fitness-program",
+    "/exercise-library",
+    "/session-generator",
+    "/calendar",
+    "/reports",
+    "/settings",
+  ].includes(item.href)
 );

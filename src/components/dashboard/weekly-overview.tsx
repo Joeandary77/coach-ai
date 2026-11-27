@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -25,7 +24,7 @@ export function WeeklyOverview() {
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="rounded-2xl border bg-card p-5 shadow-sm md:p-6"
@@ -74,11 +73,9 @@ export function WeeklyOverview() {
           aria-valuemax={100}
           className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted"
         >
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.6 }}
-            className="h-full rounded-full bg-primary"
+          <div
+            style={{ width: `${progress}%` }}
+            className="h-full rounded-full bg-primary transition-all duration-500"
           />
         </div>
       </div>
