@@ -69,7 +69,11 @@ def generate_session(req: GenerateSessionRequest) -> dict:
     if req.mode in ("basketball", "combined"):
         bball_parts = [
             ("Warm-up", 8, "Dynamic movement & ball handling activation"),
-            ("Skill 1", 15, f"Primary court skill ({req.focus if req.focus != 'ALL' else 'Footwork & Control'})"),
+            (
+                "Skill 1",
+                15,
+                f"Primary court skill ({req.focus if req.focus != 'ALL' else 'Footwork & Control'})",
+            ),
             ("Skill 2", 15, "Secondary court skill & game transfer"),
             ("Game", 17, "Small-sided constraints & decision play"),
             ("Cool-down & Talk", 5, "Breathing reset & 1-minute coaching recap"),
@@ -92,7 +96,11 @@ def generate_session(req: GenerateSessionRequest) -> dict:
             ("Hydration & Recovery", 3, "Water break & readiness check"),
             ("Speed & Agility", 6, "Cones, ladder, or floor markers"),
             ("Bodyweight Strength", 6, "Controlled squats, push-ups, or core holds"),
-            ("Coordination & Balance", 6, "Single-leg balance or soft/tennis ball catch"),
+            (
+                "Coordination & Balance",
+                6,
+                "Single-leg balance or soft/tennis ball catch",
+            ),
             ("Movement Game", 4, "Cooperative relay or movement circuit"),
             ("Mobility & Cooldown", 5, "Guided mobility & calm breathing"),
         ]
@@ -128,7 +136,11 @@ def coach_chat(req: CoachChatRequest) -> CoachChatResponse:
     )
     return CoachChatResponse(
         reply=reply,
-        grounded_topics=["Month 1 Foundations", "60m Court / 30m Fitness", "Youth Safety Rules"],
+        grounded_topics=[
+            "Month 1 Foundations",
+            "60m Court / 30m Fitness",
+            "Youth Safety Rules",
+        ],
         model_mode="curriculum-grounded-stub",
     )
 
@@ -136,6 +148,7 @@ def coach_chat(req: CoachChatRequest) -> CoachChatResponse:
 @app.get("/api/v1/reports", response_model=list[SessionReportRecord])
 def list_reports() -> list[SessionReportRecord]:
     items = store.list_reports()
+    default_storage = "mongodb" if store.is_mongodb_connected else "file"
     return [
         SessionReportRecord(
             id=item["id"],
@@ -145,7 +158,7 @@ def list_reports() -> list[SessionReportRecord]:
             attendance_count=item["attendance_count"],
             readiness_rating=item["readiness_rating"],
             notes=item["notes"],
-            storage="mongodb" if store.is_mongodb_connected else "memory",
+            storage=item.get("storage") or default_storage,
         )
         for item in items
     ]

@@ -17,7 +17,7 @@ class GenerateSessionRequest(BaseModel):
 
 class CoachChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
-    age_group: str = Field(default="U12 (A)", max_length=20)
+    age_group: str = Field(default="U12 (A)", min_length=2, max_length=20)
     week: int = Field(default=1, ge=1, le=4)
 
 
@@ -38,4 +38,4 @@ class SessionReportCreate(BaseModel):
 
 class SessionReportRecord(SessionReportCreate):
     id: str
-    storage: Literal["mongodb", "memory"]
+    storage: Literal["mongodb", "file", "memory"]
