@@ -274,3 +274,11 @@ def delete_report(report_id: str) -> dict:
     if not deleted:
         raise HTTPException(status_code=404, detail="Report not found")
     return {"deleted": True, "id": report_id}
+
+
+@app.delete("/api/v1/auth/me")
+def delete_current_coach(coach: dict = Depends(require_coach)) -> dict:
+    deleted = coach_store.delete_coach(coach["id"])
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Coach profile not found")
+    return {"deleted": True, "id": coach["id"]}

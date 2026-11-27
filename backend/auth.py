@@ -209,6 +209,24 @@ class CoachStore:
         self._write_file(items)
         return self.get_by_id(coach_id)
 
+    def delete_coach(self, coach_id: str) -> bool:
+        deleted = False
+
+        if self._collection is not None:
+            try:
+                result = self._collection.delete_one({"id": coach_id})
+                deleted = result.deleted_count > 0
+            except PyMongoError:
+                self._collection = None
+
+        items = self._read_file()
+        remaining = [item for item in items if item.get("id") != coach_id]
+        if len(remaining) != len(items):
+            self._write_file(remaining)
+            deleted = True
+
+        return deleted
+
 
 def get_auth_secret() -> str:
     return os.getenv("AUTH_SECRET_KEY", "coachai-dev-secret-change-me").strip()

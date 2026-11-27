@@ -8,6 +8,7 @@ import {
   Wand2,
   Calendar,
   ClipboardList,
+  UserCircle2,
   Settings,
 } from "lucide-react";
 
@@ -67,6 +68,12 @@ export const navigationItems = [
     icon: ClipboardList,
   },
   {
+    title: "Coach Profile",
+    shortTitle: "Profile",
+    href: "/login",
+    icon: UserCircle2,
+  },
+  {
     title: "Settings",
     shortTitle: "Settings",
     href: "/settings",
@@ -85,6 +92,7 @@ export const mobileMoreItems = navigationItems.filter((item) =>
     "/session-generator",
     "/calendar",
     "/reports",
+    "/login",
     "/settings",
   ].includes(item.href)
 );

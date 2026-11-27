@@ -2,7 +2,7 @@
 
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backendDir = Join-Path $repoRoot "backend"
-$condaExe = Join-Path $env:LOCALAPPDATA "anaconda3\Scripts\conda.exe"
+$pythonExe = Join-Path $env:LOCALAPPDATA "anaconda3\envs\n8n-copilot\python.exe"
 
 if (-not (Test-Path (Join-Path $backendDir "main.py"))) {
     throw "Missing backend/main.py at $backendDir"
@@ -12,11 +12,11 @@ if (-not (Test-Path (Join-Path $repoRoot "package.json"))) {
     throw "Missing package.json at $repoRoot"
 }
 
-if (-not (Test-Path $condaExe)) {
-    throw "Conda executable not found at $condaExe"
+if (-not (Test-Path $pythonExe)) {
+    throw "Python executable not found at $pythonExe"
 }
 
-$backendCmd = "Set-Location '$backendDir'; & '$condaExe' run -n n8n-copilot uvicorn main:app --reload --host 127.0.0.1 --port 8000"
+$backendCmd = "Set-Location '$backendDir'; & '$pythonExe' -m uvicorn main:app --reload --host 127.0.0.1 --port 8000"
 $frontendCmd = "Set-Location '$repoRoot'; npm run dev"
 
 Write-Host "Starting CoachAI FastAPI backend (http://127.0.0.1:8000)..." -ForegroundColor Cyan
