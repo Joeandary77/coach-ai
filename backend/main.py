@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
+
+from rag import retrieve_curriculum_context
+
 from schemas import (
     CoachChatRequest,
     CoachChatResponse,
@@ -129,21 +132,20 @@ def generate_session(req: GenerateSessionRequest) -> dict:
 @app.post("/api/v1/coach/chat", response_model=CoachChatResponse)
 def coach_chat(req: CoachChatRequest) -> CoachChatResponse:
     text = req.message.strip()
+    topics, context_lines = retrieve_curriculum_context(
+        query=text,
+        age_group=req.age_group,
+        week=req.week,
+    )
     reply = (
-        f"[{req.age_group} · Week {req.week}] Received your question: \"{text}\". "
-        "Basketball practices run 60 minutes across 5 blocks (Warm-up, Skill 1, Skill 2, Game, Cool-down & Talk), "
-        "and Saturday post-practice fitness runs 30 minutes across 6 blocks without basketballs or skipping ropes."
+        f"Question: \"{text}\"\n\n"
+        + "\n".join(f"- {line}" for line in context_lines)
     )
     return CoachChatResponse(
         reply=reply,
-        grounded_topics=[
-            "Month 1 Foundations",
-            "60m Court / 30m Fitness",
-            "Youth Safety Rules",
-        ],
-        model_mode="curriculum-grounded-stub",
+        grounded_topics=topics,
+        model_mode="curriculum-rag-retriever",
     )
-
 
 @app.get("/api/v1/reports", response_model=list[SessionReportRecord])
 def list_reports() -> list[SessionReportRecord]:
