@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Server,
@@ -8,26 +8,63 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+export const BACKEND_URL_STORAGE_KEY = "coachai_backend_url_v1";
+export const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+
 export default function SettingsPage() {
-  const [backendUrl, setBackendUrl] = useState("http://127.0.0.1:8000");
+  const [backendUrl, setBackendUrl] = useState(DEFAULT_BACKEND_URL);
   const [defaultGroup, setDefaultGroup] = useState("U12 (A)");
   const [waterBreakSeconds, setWaterBreakSeconds] = useState(45);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem(BACKEND_URL_STORAGE_KEY);
+    if (saved) {
+      setBackendUrl(saved);
+    }
+  }, []);
+
+  function handleUrlChange(value: string) {
+    setBackendUrl(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        BACKEND_URL_STORAGE_KEY,
+        value.trim() || DEFAULT_BACKEND_URL
+      );
+    }
+  }
+
   async function handlePingBackend() {
+    const cleanUrl = (backendUrl.trim() || DEFAULT_BACKEND_URL).replace(
+      /\/+$/,
+      ""
+    );
+    if (typeof window !== "undefined") {
+      localStorage.setItem(BACKEND_URL_STORAGE_KEY, cleanUrl);
+    }
+
     setStatusMessage("Checking FastAPI backend...");
     try {
-      const response = await fetch(`${backendUrl}/health`);
+      const response = await fetch(`${cleanUrl}/health`);
       if (response.ok) {
-        setStatusMessage("Connected to CoachAI FastAPI backend.");
+        const data = (await response.json()) as {
+          status?: string;
+          mongodb_connected?: boolean;
+        };
+        setStatusMessage(
+          `Connected to CoachAI FastAPI backend (status: ${
+            data.status ?? "ok"
+          }, MongoDB: ${data.mongodb_connected ? "connected" : "memory fallback"}).`
+        );
       } else {
         setStatusMessage(
-          `Backend responded with status ${response.status}.`
+          `Backend responded with HTTP ${response.status}.`
         );
       }
     } catch {
       setStatusMessage(
-        "Backend not running yet — ready to start in Phase 6 (backend/main.py)."
+        `Could not reach ${cleanUrl}. Start Uvicorn with: uvicorn main:app --reload --host 127.0.0.1 --port 8000`
       );
     }
   }
@@ -111,7 +148,7 @@ export default function SettingsPage() {
             <input
               type="text"
               value={backendUrl}
-              onChange={(e) => setBackendUrl(e.target.value)}
+              onChange={(e) => handleUrlChange(e.target.value)}
               className="h-10 flex-1 rounded-xl border bg-background px-3 text-sm outline-none focus:border-primary"
             />
             <button

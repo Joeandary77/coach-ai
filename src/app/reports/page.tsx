@@ -14,6 +14,9 @@ import {
 import { endOfMonthChecklists } from "@/data/basketball-program";
 import type { BasketballAgeGroup } from "@/types/training";
 
+const BACKEND_URL_STORAGE_KEY = "coachai_backend_url_v1";
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+
 interface SessionReportEntry {
   id: string;
   date: string;
@@ -22,6 +25,18 @@ interface SessionReportEntry {
   attendanceCount: number;
   readinessRating: "High Energy" | "Normal" | "Fatigued — Adapted";
   notes: string;
+  storage?: "mongodb" | "memory" | "local";
+}
+
+interface BackendReportRecord {
+  id: string;
+  date: string;
+  age_group: BasketballAgeGroup;
+  session_type: SessionReportEntry["sessionType"];
+  attendance_count: number;
+  readiness_rating: SessionReportEntry["readinessRating"];
+  notes: string;
+  storage?: "mongodb" | "memory";
 }
 
 const STORAGE_REPORTS_KEY = "coachai_session_reports_v1";
@@ -37,8 +52,30 @@ const DEFAULT_REPORTS: SessionReportEntry[] = [
     readinessRating: "High Energy",
     notes:
       "Completed Week 1 ball-handling & footwork progressions followed by 30-min U12 conditioning. All players maintained clean posture.",
+    storage: "local",
   },
 ];
+
+function getBackendBaseUrl(): string {
+  if (typeof window === "undefined") return DEFAULT_BACKEND_URL;
+  return (
+    localStorage.getItem(BACKEND_URL_STORAGE_KEY)?.trim() ||
+    DEFAULT_BACKEND_URL
+  ).replace(/\/+$/, "");
+}
+
+function mapBackendReport(item: BackendReportRecord): SessionReportEntry {
+  return {
+    id: item.id,
+    date: item.date,
+    ageGroup: item.age_group,
+    sessionType: item.session_type,
+    attendanceCount: item.attendance_count,
+    readinessRating: item.readiness_rating,
+    notes: item.notes,
+    storage: item.storage ?? "memory",
+  };
+}
 
 export default function SessionReportsPage() {
   const [reports, setReports] = useState<SessionReportEntry[]>(DEFAULT_REPORTS);
@@ -58,10 +95,12 @@ export default function SessionReportsPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    let localItems = DEFAULT_REPORTS;
     try {
       const savedReports = localStorage.getItem(STORAGE_REPORTS_KEY);
       if (savedReports) {
-        setReports(JSON.parse(savedReports) as SessionReportEntry[]);
+        localItems = JSON.parse(savedReports) as SessionReportEntry[];
+        setReports(localItems);
       }
       const savedChecks = localStorage.getItem(STORAGE_CHECKLIST_KEY);
       if (savedChecks) {
@@ -70,9 +109,25 @@ export default function SessionReportsPage() {
     } catch {
       // Ignore storage parse issues
     }
+
+    async function loadBackendReports() {
+      try {
+        const res = await fetch(`${getBackendBaseUrl()}/api/v1/reports`);
+        if (!res.ok) return;
+        const remote = (await res.json()) as BackendReportRecord[];
+        if (remote.length > 0) {
+          const mapped = remote.map(mapBackendReport);
+          setReports(mapped);
+        }
+      } catch {
+        // Keep local reports when backend is not running
+      }
+    }
+
+    void loadBackendReports();
   }, []);
 
-  function saveReports(next: SessionReportEntry[]) {
+  function saveLocalReports(next: SessionReportEntry[]) {
     setReports(next);
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_REPORTS_KEY, JSON.stringify(next));
@@ -89,26 +144,55 @@ export default function SessionReportsPage() {
     });
   }
 
-  function handleAddReport(e: FormEvent<HTMLFormElement>) {
+  async function handleAddReport(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!notes.trim()) return;
 
-    const entry: SessionReportEntry = {
+    const today = new Date().toISOString().slice(0, 10);
+    const trimmedNotes = notes.trim();
+
+    try {
+      const res = await fetch(`${getBackendBaseUrl()}/api/v1/reports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: today,
+          age_group: ageGroup,
+          session_type: sessionType,
+          attendance_count: attendanceCount,
+          readiness_rating: readinessRating,
+          notes: trimmedNotes,
+        }),
+      });
+
+      if (res.ok) {
+        const created = (await res.json()) as BackendReportRecord;
+        const next = [mapBackendReport(created), ...reports];
+        saveLocalReports(next);
+        setNotes("");
+        return;
+      }
+    } catch {
+      // Fall back to local storage if backend is offline
+    }
+
+    const fallbackEntry: SessionReportEntry = {
       id: crypto.randomUUID(),
-      date: new Date().toISOString().slice(0, 10),
+      date: today,
       ageGroup,
       sessionType,
       attendanceCount,
       readinessRating,
-      notes: notes.trim(),
+      notes: trimmedNotes,
+      storage: "local",
     };
 
-    saveReports([entry, ...reports]);
+    saveLocalReports([fallbackEntry, ...reports]);
     setNotes("");
   }
 
   function handleDeleteReport(id: string) {
-    saveReports(reports.filter((r) => r.id !== id));
+    saveLocalReports(reports.filter((r) => r.id !== id));
   }
 
   return (
@@ -131,7 +215,7 @@ export default function SessionReportsPage() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
         {/* New Report Form */}
         <form
-          onSubmit={handleAddReport}
+          onSubmit={(e) => void handleAddReport(e)}
           className="space-y-4 rounded-2xl border bg-card p-5 shadow-xs"
         >
           <h2 className="text-base font-bold">Log New Session Report</h2>
@@ -261,6 +345,11 @@ export default function SessionReportsPage() {
                         <Users className="h-3.5 w-3.5" />
                         {report.attendanceCount} players
                       </span>
+                      {report.storage && (
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          {report.storage}
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2">
