@@ -25,7 +25,7 @@ interface SessionReportEntry {
   attendanceCount: number;
   readinessRating: "High Energy" | "Normal" | "Fatigued — Adapted";
   notes: string;
-  storage?: "mongodb" | "memory" | "local";
+  storage?: "mongodb" | "memory" | "local" | "file";
 }
 
 interface BackendReportRecord {
@@ -36,7 +36,7 @@ interface BackendReportRecord {
   attendance_count: number;
   readiness_rating: SessionReportEntry["readinessRating"];
   notes: string;
-  storage?: "mongodb" | "memory";
+  storage?: "mongodb" | "memory" | "file";
 }
 
 const STORAGE_REPORTS_KEY = "coachai_session_reports_v1";
@@ -93,14 +93,19 @@ export default function SessionReportsPage() {
     useState<SessionReportEntry["readinessRating"]>("Normal");
   const [notes, setNotes] = useState<string>("");
 
+  function saveLocalReports(next: SessionReportEntry[]) {
+    setReports(next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_REPORTS_KEY, JSON.stringify(next));
+    }
+  }
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-    let localItems = DEFAULT_REPORTS;
     try {
       const savedReports = localStorage.getItem(STORAGE_REPORTS_KEY);
       if (savedReports) {
-        localItems = JSON.parse(savedReports) as SessionReportEntry[];
-        setReports(localItems);
+        setReports(JSON.parse(savedReports) as SessionReportEntry[]);
       }
       const savedChecks = localStorage.getItem(STORAGE_CHECKLIST_KEY);
       if (savedChecks) {
@@ -115,10 +120,8 @@ export default function SessionReportsPage() {
         const res = await fetch(`${getBackendBaseUrl()}/api/v1/reports`);
         if (!res.ok) return;
         const remote = (await res.json()) as BackendReportRecord[];
-        if (remote.length > 0) {
-          const mapped = remote.map(mapBackendReport);
-          setReports(mapped);
-        }
+        const mapped = remote.map(mapBackendReport);
+        saveLocalReports(mapped);
       } catch {
         // Keep local reports when backend is not running
       }
@@ -126,13 +129,6 @@ export default function SessionReportsPage() {
 
     void loadBackendReports();
   }, []);
-
-  function saveLocalReports(next: SessionReportEntry[]) {
-    setReports(next);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_REPORTS_KEY, JSON.stringify(next));
-    }
-  }
 
   function toggleSkill(skillKey: string) {
     setCheckedSkills((prev) => {
@@ -191,7 +187,19 @@ export default function SessionReportsPage() {
     setNotes("");
   }
 
-  function handleDeleteReport(id: string) {
+  async function handleDeleteReport(id: string) {
+    try {
+      const res = await fetch(
+        `${getBackendBaseUrl()}/api/v1/reports/${encodeURIComponent(id)}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok && res.status !== 404) {
+        return;
+      }
+    } catch {
+      // Allow local cleanup when backend is offline
+    }
+
     saveLocalReports(reports.filter((r) => r.id !== id));
   }
 
@@ -358,7 +366,7 @@ export default function SessionReportsPage() {
                       </span>
                       <button
                         type="button"
-                        onClick={() => handleDeleteReport(report.id)}
+                        onClick={() => void handleDeleteReport(report.id)}
                         aria-label="Delete report"
                         className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
                       >

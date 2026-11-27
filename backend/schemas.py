@@ -27,6 +27,43 @@ class CoachChatResponse(BaseModel):
     model_mode: str
 
 
+class CoachRegisterRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, max_length=100)
+    email: str = Field(..., min_length=5, max_length=150)
+    password: str = Field(..., min_length=6, max_length=128)
+    role: Literal["Head Coach", "Assistant Coach", "Fitness Coach"] = "Assistant Coach"
+    assigned_age_groups: list[str] = Field(default_factory=lambda: ["U12 (A)"])
+    specialty: str = Field(default="Basketball Fundamentals", max_length=100)
+
+
+class CoachLoginRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=150)
+    password: str = Field(..., min_length=1, max_length=128)
+
+
+class CoachProfileUpdate(BaseModel):
+    full_name: str | None = Field(default=None, min_length=2, max_length=100)
+    role: Literal["Head Coach", "Assistant Coach", "Fitness Coach"] | None = None
+    assigned_age_groups: list[str] | None = None
+    specialty: str | None = Field(default=None, max_length=100)
+
+
+class CoachProfile(BaseModel):
+    id: str
+    full_name: str
+    email: str
+    role: str
+    assigned_age_groups: list[str]
+    specialty: str
+    created_at: str
+
+
+class AuthResponse(BaseModel):
+    access_token: str
+    token_type: Literal["bearer"] = "bearer"
+    coach: CoachProfile
+
+
 class SessionReportCreate(BaseModel):
     date: str
     age_group: str
@@ -39,3 +76,5 @@ class SessionReportCreate(BaseModel):
 class SessionReportRecord(SessionReportCreate):
     id: str
     storage: Literal["mongodb", "file", "memory"]
+    coach_id: str | None = None
+    coach_name: str | None = None

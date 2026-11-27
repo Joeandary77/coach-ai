@@ -49,3 +49,4 @@ __pycache__/
 *.py[cod]
 backend/__pycache__/
 backend/*.py[cod]
+backend/coaches_store.json

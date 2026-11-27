@@ -72,3 +72,22 @@ class ReportStore:
         items.append(file_record)
         self._write_file(items)
         return file_record, "file"
+
+
+    def delete_report(self, report_id: str) -> bool:
+        deleted = False
+
+        if self._collection is not None:
+            try:
+                result = self._collection.delete_one({"id": report_id})
+                deleted = result.deleted_count > 0
+            except PyMongoError:
+                self._collection = None
+
+        items = self._read_file()
+        remaining = [item for item in items if item.get("id") != report_id]
+        if len(remaining) != len(items):
+            self._write_file(remaining)
+            deleted = True
+
+        return deleted
