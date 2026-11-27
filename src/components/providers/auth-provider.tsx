@@ -10,7 +10,8 @@ import {
 } from "react";
 
 const BACKEND_URL_STORAGE_KEY = "coachai_backend_url_v1";
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+const DEFAULT_BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL?.trim() || "http://127.0.0.1:8000";
 const AUTH_TOKEN_STORAGE_KEY = "coachai_auth_token_v1";
 const AUTH_COACH_STORAGE_KEY = "coachai_auth_coach_v1";
 
@@ -56,7 +57,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function getBackendBaseUrl(): string {
-  if (typeof window === "undefined") return DEFAULT_BACKEND_URL;
+  if (typeof window === "undefined") return DEFAULT_BACKEND_URL.replace(/\/+$/, "");
   return (
     localStorage.getItem(BACKEND_URL_STORAGE_KEY)?.trim() ||
     DEFAULT_BACKEND_URL

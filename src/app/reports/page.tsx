@@ -13,11 +13,11 @@ import {
 } from "lucide-react";
 
 import { endOfMonthChecklists } from "@/data/basketball-program";
-import { useAuth } from "@/components/providers/auth-provider";
+import {
+  getBackendBaseUrl,
+  useAuth,
+} from "@/components/providers/auth-provider";
 import type { BasketballAgeGroup } from "@/types/training";
-
-const BACKEND_URL_STORAGE_KEY = "coachai_backend_url_v1";
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
 
 interface SessionReportEntry {
   id: string;
@@ -61,14 +61,6 @@ const DEFAULT_REPORTS: SessionReportEntry[] = [
     storage: "local",
   },
 ];
-
-function getBackendBaseUrl(): string {
-  if (typeof window === "undefined") return DEFAULT_BACKEND_URL;
-  return (
-    localStorage.getItem(BACKEND_URL_STORAGE_KEY)?.trim() ||
-    DEFAULT_BACKEND_URL
-  ).replace(/\/+$/, "");
-}
 
 function mapBackendReport(item: BackendReportRecord): SessionReportEntry {
   return {
