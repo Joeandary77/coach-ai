@@ -29,4 +29,19 @@ foreach ($port in $ports) {
     }
 }
 
+$devShells = Get-CimInstance Win32_Process -Filter "Name = 'powershell.exe'" -ErrorAction SilentlyContinue |
+    Where-Object {
+        $_.ProcessId -ne $PID -and
+        $_.CommandLine -and
+        (
+            $_.CommandLine -like "*uvicorn main:app*" -or
+            $_.CommandLine -like "*npm run dev*"
+        )
+    }
+
+foreach ($shell in $devShells) {
+    Write-Host "Closing server PowerShell window (PID $($shell.ProcessId))..." -ForegroundColor Yellow
+    Stop-Process -Id $shell.ProcessId -Force -ErrorAction SilentlyContinue
+}
+
 Write-Host "CoachAI local dev shutdown check complete." -ForegroundColor Green
